@@ -5,7 +5,7 @@ Created on Wed Apr 21 23:26:04 2021
 @author: Prathamesh
 """
 
-from solve.solvers import Jacobi
+from solve.solvers import Jacobi, Milaszewicz
 
 from generate.generators import SystemGenerator
 
@@ -33,4 +33,20 @@ if __name__ == '__main__':
     jac2.solve(tol=1e-6,max_iters=2000)
     
     print(jac2,end='\n\n')
+
+    '-----------------------------------------------Milaszewicz followed by Standard Jacobi-----------------------------------------------'
+
+    mil_sj = Milaszewicz(s,k=4,method='jacobi',use_modified_method=False,compute_spectral_radius=True,copy=True,warm_start=True)
+    
+    mil_sj.solve(tol=1e-6,max_iters=2000)
+    
+    print(mil_sj,end='\n\n')
+
+    '-----------------------------------------------Milaszewicz followed by Modified Jacobi-----------------------------------------------'
+
+    mil_mj = Milaszewicz(s,k=4,method='jacobi',use_modified_method=True,compute_spectral_radius=True,copy=True,warm_start=True)
+    
+    mil_mj.solve(tol=1e-6,max_iters=2000)
+    
+    print(mil_mj,end='\n\n')
 
