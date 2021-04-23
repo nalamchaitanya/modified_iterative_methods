@@ -152,7 +152,74 @@ class Jacobi:
             table.append(['Spectral radius',self.spectral_radius])
         
         return tabulate(table,tablefmt='grid')
+
+class Milaszewicz:
     
+    def __init__(self,system,k,method='jacobi',x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False):
+        
+        self.k = k
+        self.method = method
+        
+        if method == 'jacobi':
+            self.solver = Jacobi(system,x,use_modified_method,compute_spectral_radius,copy,warm_start)
+        elif method == 'gauss_seidel':
+            pass
+        
+        self.n = self.solver.n
+        
+        self._elimination_performed = False
+    
+    def perform_elimination(self):
+        
+        """
+            x(k+1) = T * x(k) + c
+            is transformed to
+            x(k+1) = (S*T + T - S) + (I + S)*c.
+        """
+        
+        T = self.solver.T # iteration matrix T of the solver
+        c = self.solver.c 
+        
+        S = np.zeros((self.n,self.n))
+        S[:,self.k] = T[:,self.k]
+        
+        T = np.matmul(S,T) + T - S
+        c = np.dot(np.eye(self.n)+S,c)
+        
+        self.solver.T = T # new iteration matrix T of the solver
+        self.solver.c = c
+        
+        if self.solver._compute_spectral_radius: # compute spectral radius of new iteration matrix T
+            self.solver.compute_spectral_radius()
+    
+    def solve(self,tol=1e-5,max_iters=100):
+        
+        """Compute the solution vector for a given system."""
+        
+        if not self._elimination_performed: # elimination not performed
+            self.solver.split() # compute matrix T and vector c of the solver
+            self.solver.splitted = True
+            self.perform_elimination() # perform elimination
+            self._elimination_performed = True
+        
+        self.solver.solve(tol,max_iters) # perform iterations and compute solution vector
+        
+        self.x = self.solver.x # solution vector
+    
+    def __str__(self):
+       
+        method = 'Milaszewicz followed by Modified Jacobi' if self.solver._use_modified_method else 'Milaszewicz followed by Standard Jacobi'
+        
+        table = [['Kind',self.solver.kind],
+                 ['Dimension',self.solver.n],
+                 ['Method',method],
+                 ['# Iterations',self.solver.noi],
+                 ['Converged',self.solver.converged]]
+        
+        if self.solver._compute_spectral_radius:
+            table.append(['Spectral radius',self.solver.spectral_radius])
+        
+        return tabulate(table,tablefmt='grid')
 
 
 
