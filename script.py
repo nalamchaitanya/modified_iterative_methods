@@ -6,6 +6,7 @@ Created on Wed Apr 21 23:26:04 2021
 """
 
 from solve.solvers import Jacobi, Milaszewicz
+from solve.gaussSeidel import GaussSeidel;
 
 from generate.generators import SystemGenerator
 
@@ -24,6 +25,14 @@ if __name__ == '__main__':
     jac1.solve(tol=1e-10,max_iters=2000)
     
     print(jac1,end='\n\n')
+
+    '-----------------------------------------------Standard GaussSeidel-----------------------------------------------'
+
+    gase1 = GaussSeidel(s,compute_spectral_radius=True,use_modified_method=False,warm_start=True)
+
+    gase1.solve(tol=1e-10,max_iters=2000)
+
+    print(gase1,end='\n\n')
     
     '-----------------------------------------------Modified Jacobi-----------------------------------------------'
     
@@ -33,6 +42,14 @@ if __name__ == '__main__':
     jac2.solve(tol=1e-6,max_iters=2000)
     
     print(jac2,end='\n\n')
+
+    '-----------------------------------------------Modified GaussSeidel-----------------------------------------------'
+
+    gase2 = GaussSeidel(s,compute_spectral_radius=True,use_modified_method=True,warm_start=True)
+
+    gase2.solve(tol=1e-10,max_iters=2000)
+
+    print(gase2,end='\n\n')
 
     '-----------------------------------------------Milaszewicz followed by Standard Jacobi-----------------------------------------------'
 
