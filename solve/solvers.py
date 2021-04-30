@@ -13,7 +13,7 @@ class Jacobi:
     
     """Standard and modified jacobi methods."""
     
-    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False):
+    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False,diagonal_list=[1]):
         
         if copy:
             self.A = system.A.copy() # square matrix A
@@ -40,6 +40,8 @@ class Jacobi:
             else:
                 self._zero_check_passed = True # flag to indicate that the zero check passed
         else:
+            self.diagonal_list = diagonal_list
+            self.kind += ', diagonal_list='+str(diagonal_list)
             self._zero_check_passed = True
             
         self.splitted = False # flag to indicate the status of splitting
@@ -68,7 +70,7 @@ class Jacobi:
         
         self.spectral_radius = np.max(np.abs(eigvals(self.T))) # compute spectral radius
     
-    def split(self, diagonal_list=[1]):
+    def split(self):
         
         """Compute matrix T and vector c in the iteration x(k+1) = T * x(k) + c"""
         
@@ -78,8 +80,8 @@ class Jacobi:
             self.T[range(self.n),range(self.n)] = 0
         else: # modified jacobi method
             
-            for diagonal_index in diagonal_list:
-                self.make_diagonal_zero(self, diagonal_index);
+            for diagonal_index in self.diagonal_list:
+                self.make_diagonal_zero(diagonal_index);
 
             if not self.__all_ones_along_diagonal():
                 self.b = self.b / self.A[range(self.n),range(self.n)] # (D^-1)*b
@@ -108,7 +110,7 @@ class Jacobi:
             self.A = np.divide(self.A,self.A[range(self.n),range(self.n)].reshape(self.n,1)) # (D^-1)*A
 
         S = np.zeros((self.n,self.n),dtype=np.float64)
-        S[range(max(0,-diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] = -self.A[range(max(0,diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] # matrix S
+        S[range(max(0,-diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] = -self.A[range(max(0,-diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] # matrix S
 
         self.b = np.dot(np.eye(self.n)+S,self.b);
         self.A = np.matmul(np.eye(self.n)+S,self.A);
@@ -178,7 +180,7 @@ class Milaszewicz:
             self.solver = Jacobi(system,x,use_modified_method,compute_spectral_radius,copy,warm_start)
             self.solver_name = 'Jacobi'
         elif method == 'gauss_seidel':
-            self.solver = Jacobi(system,x,use_modified_method,compute_spectral_radius,copy,warm_start)
+            self.solver = GaussSeidel(system,x,use_modified_method,compute_spectral_radius,copy,warm_start)
             self.solver_name = 'GaussSeidel'
         
         self.n = self.solver.n
@@ -243,7 +245,7 @@ class GaussSeidel:
 
     """GaussSeidel iterative method"""
 
-    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False):
+    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False,diagonal_list=[1]):
 
         if copy:
             self.A = system.A.copy() # square matrix A
@@ -270,6 +272,8 @@ class GaussSeidel:
             else:
                 self._zero_check_passed = True # flag to indicate that the zero check passed
         else:
+            self.diagonal_list = diagonal_list;
+            self.kind += ', diagonal_list='+str(diagonal_list)
             self._zero_check_passed = True
             
         self.splitted = False # flag to indicate the status of splitting
@@ -299,7 +303,7 @@ class GaussSeidel:
         
         self.spectral_radius = np.max(np.abs(eigvals(self.T))) # compute spectral radius
 
-    def split(self, diagonal_list = [1]):
+    def split(self):
         
         """Compute matrix T and vector c in the iteration x(k+1) = T * x(k) + c"""
 
@@ -319,8 +323,8 @@ class GaussSeidel:
 
         else: #modified gauss-seidel method
 
-            for diagonal_index in diagonal_list:
-                self.make_diagonal_zero(self, diagonal_index);
+            for diagonal_index in self.diagonal_list:
+                self.make_diagonal_zero(diagonal_index);
 
             if not self.__all_ones_along_diagonal():
                 self.b = self.b / self.A[range(self.n),range(self.n)] # (D^-1)*b
@@ -337,7 +341,7 @@ class GaussSeidel:
             # TODO condition for existence of inverse.
             I_L_inv = inv(np.eye(self.n) - L);
 
-            self.c = np.dot(I_L_inv, b);
+            self.c = np.dot(I_L_inv, self.b);
             self.T = np.matmul(I_L_inv, U);
             
         if self._compute_spectral_radius: # compute spectral radius of iteration matrix T
@@ -351,7 +355,7 @@ class GaussSeidel:
             self.A = np.divide(self.A,self.A[range(self.n),range(self.n)].reshape(self.n,1)) # (D^-1)*A
 
         S = np.zeros((self.n,self.n),dtype=np.float64)
-        S[range(max(0,-diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] = -self.A[range(max(0,diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] # matrix S
+        S[range(max(0,-diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] = -self.A[range(max(0,-diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] # matrix S
 
         self.b = np.dot(np.eye(self.n)+S,self.b);
         self.A = np.matmul(np.eye(self.n)+S,self.A);
