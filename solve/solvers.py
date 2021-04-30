@@ -68,7 +68,7 @@ class Jacobi:
         
         self.spectral_radius = np.max(np.abs(eigvals(self.T))) # compute spectral radius
     
-    def split(self,modified_method=False,diagonal_list=[1]):
+    def split(self, diagonal_list=[1]):
         
         """Compute matrix T and vector c in the iteration x(k+1) = T * x(k) + c"""
         
@@ -299,7 +299,7 @@ class GaussSeidel:
         
         self.spectral_radius = np.max(np.abs(eigvals(self.T))) # compute spectral radius
 
-    def split(self):
+    def split(self, diagonal_list = [1]):
         
         """Compute matrix T and vector c in the iteration x(k+1) = T * x(k) + c"""
 
@@ -318,12 +318,13 @@ class GaussSeidel:
             self.T = - np.matmul(Lsi,U);
 
         else: #modified gauss-seidel method
-            if not self.__all_ones_along_diagonal():
-                self.b = self.b / self.A[range(self.n),range(self.n)];
-                self.A = np.divide(self.A, self.A[range(self.n),range(self.n)].reshape(self.n,1));
 
-            S = np.zeros((self.n,self.n), dtype = np.float64);
-            S[range(0,self.n-1),range(1,self.n)] = -self.A[range(0,self.n-1),range(1,self.n)];
+            for diagonal_index in diagonal_list:
+                self.make_diagonal_zero(self, diagonal_index);
+
+            if not self.__all_ones_along_diagonal():
+                self.b = self.b / self.A[range(self.n),range(self.n)] # (D^-1)*b
+                self.A = np.divide(self.A,self.A[range(self.n),range(self.n)].reshape(self.n,1)) # (D^-1)*A
 
             L = np.zeros((self.n,self.n),dtype=np.float64) # strictly lower triangular matrix
             for r in range(1,self.n):
@@ -334,14 +335,26 @@ class GaussSeidel:
                 U[r,r+1:] = - self.A[r,r+1:]
 
             # TODO condition for existence of inverse.
-            I_L_SL_inv = inv(np.eye(self.n) - L - np.matmul(S,L));
+            I_L_inv = inv(np.eye(self.n) - L);
 
-            self.c = np.dot(I_L_SL_inv, np.dot(np.eye(self.n)+S,self.b));
-            self.T = np.matmul(I_L_SL_inv, np.matmul(S,U) + U - S);
+            self.c = np.dot(I_L_inv, b);
+            self.T = np.matmul(I_L_inv, U);
             
         if self._compute_spectral_radius: # compute spectral radius of iteration matrix T
             self.compute_spectral_radius()
 
+
+    def make_diagonal_zero(self, diagonal_index):
+
+        if not self.__all_ones_along_diagonal():
+            self.b = self.b / self.A[range(self.n),range(self.n)] # (D^-1)*b
+            self.A = np.divide(self.A,self.A[range(self.n),range(self.n)].reshape(self.n,1)) # (D^-1)*A
+
+        S = np.zeros((self.n,self.n),dtype=np.float64)
+        S[range(max(0,-diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] = -self.A[range(max(0,diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] # matrix S
+
+        self.b = np.dot(np.eye(self.n)+S,self.b);
+        self.A = np.matmul(np.eye(self.n)+S,self.A);
 
     # TODO move iterate, solve to utility class so that it can be modular as well as good to time only the iteration procedure.
     def __iterate(self,tol,max_iters):
