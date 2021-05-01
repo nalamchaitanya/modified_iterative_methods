@@ -134,11 +134,13 @@ class MatrixGenerator:
         
 class System:
     
-    def __init__(self,A,b,kind,diagonally_dominant):
+    def __init__(self,A,x_true,b,kind,diagonally_dominant,dim):
         self.A = A
+        self.x_true = x_true
         self.b = b
         self.kind = kind
         self.diagonally_dominant = diagonally_dominant
+        self.dim = dim
         
 class SystemGenerator:
     
@@ -153,7 +155,8 @@ class SystemGenerator:
         """
         
         A = self.mg.generate(dim,kind,diagonally_dominant)
-        b = np.random.rand(dim)
-        return System(A,b,kind,diagonally_dominant)
+        x_true = np.random.rand(dim)
+        b = np.dot(A,x_true)
+        return System(A,x_true,b,kind,diagonally_dominant,dim)
 
 
