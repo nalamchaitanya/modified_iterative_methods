@@ -13,7 +13,8 @@ class IterativeSolver:
     
     "Parent solver"
     
-    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False):
+    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False,diagonal_list=[1]):
+        
         if copy:
             self.A = system.A.copy() # square matrix A
             self.b = system.b.copy() # vector b
@@ -41,7 +42,10 @@ class IterativeSolver:
             else:
                 self.zero_check_passed = True # flag to indicate that the zero check passed
         else:
-            self.zero_check_passed = True
+
+            self.diagonal_list = diagonal_list
+            self.kind += ', diagonal_list='+str(diagonal_list)
+            self._zero_check_passed = True
             
         self.splitted = False # flag to indicate the status of splitting
     
@@ -62,6 +66,18 @@ class IterativeSolver:
             return True
         else: # some element along the diagonal of A is not 1
             return False
+        
+    def make_diagonal_zero(self, diagonal_index):
+
+        if not self.all_ones_along_diagonal():
+            self.b = self.b / self.A[range(self.n),range(self.n)] # (D^-1)*b
+            self.A = np.divide(self.A,self.A[range(self.n),range(self.n)].reshape(self.n,1)) # (D^-1)*A
+
+        S = np.zeros((self.n,self.n),dtype=np.float64)
+        S[range(max(0,-diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] = -self.A[range(max(0,-diagonal_index),min(self.n,self.n- diagonal_index)),range(max(0,diagonal_index),min(self.n,self.n+diagonal_index))] # matrix S
+
+        self.b = np.dot(np.eye(self.n)+S,self.b);
+        self.A = np.matmul(np.eye(self.n)+S,self.A);
         
     def compute_spectral_radius(self):
         
@@ -133,13 +149,13 @@ class Jacobi(IterativeSolver):
             self.T[range(self.n),range(self.n)] = 0
         else: # modified jacobi method
             
+            for diagonal_index in self.diagonal_list:
+                self.make_diagonal_zero(diagonal_index);
+
             if not self.all_ones_along_diagonal():
                 self.b = self.b / self.A[range(self.n),range(self.n)] # (D^-1)*b
                 self.A = np.divide(self.A,self.A[range(self.n),range(self.n)].reshape(self.n,1)) # (D^-1)*A
-        
-            S = np.zeros((self.n,self.n),dtype=np.float64)
-            S[range(0,self.n-1),range(1,self.n)] = -self.A[range(0,self.n-1),range(1,self.n)] # matrix S
-            
+
             L = np.zeros((self.n,self.n),dtype=np.float64) # strictly lower triangular matrix
             for r in range(1,self.n):
                 L[r,0:r] = - self.A[r,0:r]
@@ -148,14 +164,14 @@ class Jacobi(IterativeSolver):
             for r in range(0,self.n-1):
                 U[r,r+1:] = - self.A[r,r+1:]
             
-            I_SL_inv = inv(np.eye(self.n)-np.matmul(S,L)) # matrix (I - SL)^-1
+            # I_SL_inv = inv(np.eye(self.n)-np.matmul(S,L)) # matrix (I - SL)^-1
             
-            self.c = np.dot(I_SL_inv,np.dot(np.eye(self.n)+S,self.b))
-            self.T = np.matmul(I_SL_inv,L+U-S+np.matmul(S,U)) # iteration matrix T
+            self.c = self.b
+            self.T = L + U # iteration matrix T
                     
         if self._compute_spectral_radius: # compute spectral radius of iteration matrix T
             self.compute_spectral_radius()
-            
+
     def __str__(self):
         
         method = 'Modified Jacobi' if self.use_modified_method else 'Standard Jacobi'
@@ -308,4 +324,3 @@ class Milaszewicz:
             table.append(['Spectral radius',self.solver.spectral_radius])
         
         return tabulate(table,tablefmt='grid')
-
