@@ -12,10 +12,14 @@ from generate.generators import SystemGenerator
 from visualize import visualizers as vz
 
 if __name__ == '__main__':
-
+    
+    dim = 500
+    
+    kind = 'Z'
+    
     sg = SystemGenerator() # system generator
     
-    s = sg.generate(dim=500,kind='positive',diagonally_dominant=True) # generate a system of linear equations
+    s = sg.generate(dim=dim,kind=kind,diagonally_dominant=True) # generate a system of linear equations
     
     method_names = []
     iteration_values = []
@@ -27,7 +31,7 @@ if __name__ == '__main__':
     
     jac1.solve(tol=1e-10,max_iters=2000)
     
-    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Standard Jacobi',spectral_radius=jac1.spectral_radius,l_inf_values=jac1.l_inf_values,s=0.5)
+    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Standard Jacobi',spectral_radius=jac1.spectral_radius,l_inf_values=jac1.l_inf_values,s=2)
     
     method_names.append('Standard Jacobi')
     
@@ -151,7 +155,6 @@ if __name__ == '__main__':
     print(mil_mgs,end='\n\n')
 
     vz.show_iterations_plot(kind=s.kind,dim=s.dim,y=method_names,iteration_values=iteration_values)
-    
+
     vz.show_spectral_radius_plot(kind=s.kind,dim=s.dim,y=method_names,spectral_radius_values=spectral_radius_values)
-    
-    
+
