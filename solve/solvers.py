@@ -37,7 +37,7 @@ class IterativeSolver:
         
         if not use_modified_method:
             if self.zero_along_diagonal(): # diagonal of A contains 0
-                self._zero_check_passed = False # flag to indicate that the zero check failed
+                self.zero_check_passed = False # flag to indicate that the zero check failed
                 print('Diagonal of the matrix cannot contain 0') # message about the failure to the user
             else:
                 self.zero_check_passed = True # flag to indicate that the zero check passed
@@ -45,7 +45,7 @@ class IterativeSolver:
 
             self.diagonal_list = diagonal_list
             self.kind += ', diagonal_list='+str(diagonal_list)
-            self._zero_check_passed = True
+            self.zero_check_passed = True
             
         self.splitted = False # flag to indicate the status of splitting
     
