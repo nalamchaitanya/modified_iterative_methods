@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     sg = SystemGenerator() # system generator
     
-    s = sg.generate(dim=50,kind='Q',diagonally_dominant=True) # generate a system of linear equations
+    s = sg.generate(dim=500,kind='Z',diagonally_dominant=True) # generate a system of linear equations
     
     # A,b = s.A,s.b
     
@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
     '-----------------------------------------------Milaszewicz followed by Standard Jacobi-----------------------------------------------'
 
-    mil_sj = Milaszewicz(s,k=4,method='jacobi',use_modified_method=False,compute_spectral_radius=True,copy=True,warm_start=True)
+    mil_sj = Milaszewicz(s,k=4,method='jacobi',use_modified_method=True,compute_spectral_radius=True,copy=True,warm_start=True,diagonal_list=[1,2])
     
     mil_sj.solve(tol=1e-6,max_iters=4000)
     

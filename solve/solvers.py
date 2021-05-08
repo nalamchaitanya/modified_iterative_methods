@@ -13,7 +13,7 @@ class IterativeSolver:
     
     "Parent solver"
     
-    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False,diagonal_list=[1]):
+    def __init__(self,system,diagonal_list,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False):
         
         if copy:
             self.A = system.A.copy() # square matrix A
@@ -136,8 +136,8 @@ class Jacobi(IterativeSolver):
     
     """Standard and modified jacobi methods."""
     
-    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False):
-        super().__init__(system,x,use_modified_method,compute_spectral_radius,copy,warm_start)
+    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False,diagonal_list=[1]):
+        super().__init__(system,diagonal_list,x,use_modified_method,compute_spectral_radius,copy,warm_start)
     
     def split(self):
         
@@ -191,9 +191,8 @@ class GaussSeidel(IterativeSolver):
 
     """ Standard and Modified GaussSeidel methods """
 
-    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False):
-
-        super().__init__(system,x,use_modified_method,compute_spectral_radius,copy,warm_start)
+    def __init__(self,system,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False,diagonal_list=[1]):
+        super().__init__(system,diagonal_list,x,use_modified_method,compute_spectral_radius,copy,warm_start)
 
     def split(self):
         
@@ -214,12 +213,13 @@ class GaussSeidel(IterativeSolver):
             self.T = - np.matmul(Lsi,U);
 
         else: #modified gauss-seidel method
-            if not self.all_ones_along_diagonal():
-                self.b = self.b / self.A[range(self.n),range(self.n)];
-                self.A = np.divide(self.A, self.A[range(self.n),range(self.n)].reshape(self.n,1));
 
-            S = np.zeros((self.n,self.n), dtype = np.float64);
-            S[range(0,self.n-1),range(1,self.n)] = -self.A[range(0,self.n-1),range(1,self.n)];
+            for diagonal_index in self.diagonal_list:
+                self.make_diagonal_zero(diagonal_index);
+
+            if not self.all_ones_along_diagonal():
+                self.b = self.b / self.A[range(self.n),range(self.n)] # (D^-1)*b
+                self.A = np.divide(self.A,self.A[range(self.n),range(self.n)].reshape(self.n,1)) # (D^-1)*A
 
             L = np.zeros((self.n,self.n),dtype=np.float64) # strictly lower triangular matrix
             for r in range(1,self.n):
@@ -230,10 +230,10 @@ class GaussSeidel(IterativeSolver):
                 U[r,r+1:] = - self.A[r,r+1:]
 
             # TODO condition for existence of inverse.
-            I_L_SL_inv = inv(np.eye(self.n) - L - np.matmul(S,L));
+            I_L_inv = inv(np.eye(self.n) - L);
 
-            self.c = np.dot(I_L_SL_inv, np.dot(np.eye(self.n)+S,self.b));
-            self.T = np.matmul(I_L_SL_inv, np.matmul(S,U) + U - S);
+            self.c = np.dot(I_L_inv, self.b);
+            self.T = np.matmul(I_L_inv, U);
             
         if self._compute_spectral_radius: # compute spectral radius of iteration matrix T
             self.compute_spectral_radius()
@@ -255,16 +255,16 @@ class GaussSeidel(IterativeSolver):
 
 class Milaszewicz:
     
-    def __init__(self,system,k,method='jacobi',x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False):
+    def __init__(self,system,k,method='jacobi',x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False,diagonal_list=[1]):
         
         self.k = k
         self.method = method
         
         if method == 'jacobi':
-            self.solver = Jacobi(system,x,use_modified_method,compute_spectral_radius,copy,warm_start)
+            self.solver = Jacobi(system,x,use_modified_method,compute_spectral_radius,copy,warm_start,diagonal_list)
             self.solver_name = 'Jacobi'
         elif method == 'gauss_seidel':
-            self.solver = GaussSeidel(system,x,use_modified_method,compute_spectral_radius,copy,warm_start)
+            self.solver = GaussSeidel(system,x,use_modified_method,compute_spectral_radius,copy,warm_start,diagonal_list)
             self.solver_name = 'GaussSeidel'
         
         self.n = self.solver.n

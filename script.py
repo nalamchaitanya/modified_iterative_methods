@@ -154,6 +154,8 @@ if __name__ == '__main__':
     
     print(mil_mgs,end='\n\n')
 
+    '-----------------------------------------------Iterations and Spectral Radius Plots-----------------------------------------------'
+
     vz.show_iterations_plot(kind=s.kind,dim=s.dim,y=method_names,iteration_values=iteration_values)
 
     vz.show_spectral_radius_plot(kind=s.kind,dim=s.dim,y=method_names,spectral_radius_values=spectral_radius_values)

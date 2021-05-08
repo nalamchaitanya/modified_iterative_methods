@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     sg = SystemGenerator() # system generator
     
-    s = sg.generate(dim=100,kind='Q',diagonally_dominant=True) # generate a system of linear equations
+    s = sg.generate(dim=500,kind='Z',diagonally_dominant=True) # generate a system of linear equations
     
     # A,b = s.A,s.b
     
@@ -58,6 +58,22 @@ if __name__ == '__main__':
     
     mil_sj.solve(tol=1e-6,max_iters=2000)
     
+    print(mil_sj,end='\n\n')
+
+    '-----------------------------------------------Milaszewicz followed by Modified GaussSeidel-----------------------------------------------'
+
+    mil_sj = Milaszewicz(s,k=4,method='gauss_seidel',use_modified_method=True,compute_spectral_radius=True,copy=True,warm_start=True,diagonal_list=[1])
+
+    mil_sj.solve(tol=1e-6,max_iters=2000)
+
+    print(mil_sj,end='\n\n')
+
+    '-----------------------------------------------Milaszewicz followed by Multi Diagonal GaussSeidel-----------------------------------------------'
+
+    mil_sj = Milaszewicz(s,k=4,method='gauss_seidel',use_modified_method=True,compute_spectral_radius=True,copy=True,warm_start=True,diagonal_list=[1,2])
+
+    mil_sj.solve(tol=1e-6,max_iters=2000)
+
     print(mil_sj,end='\n\n')
 
     
