@@ -9,19 +9,42 @@ from solve.solvers import Jacobi, Milaszewicz, GaussSeidel
 
 from generate.generators import SystemGenerator
 
+from visualize import visualizers as vz
+
+import numpy as np
+
 if __name__ == '__main__':
+
+    np.random.seed(0);
+
+    dim = 500
+
+    kind = 'Z'
+
+    tol = 1e-6
+
+    max_iters = 2000
 
     sg = SystemGenerator() # system generator
     
-    s = sg.generate(dim=500,kind='Z',diagonally_dominant=True) # generate a system of linear equations
+    s = sg.generate(dim=dim,kind=kind,diagonally_dominant=True) # generate a system of linear equations
     
+    method_names = []
+    iteration_values = []
+    spectral_radius_values = []
     # A,b = s.A,s.b
     
     '-----------------------------------------------Standard GaussSeidel-----------------------------------------------'
     
     jac1 = GaussSeidel(s,compute_spectral_radius=True,use_modified_method=False,warm_start=True)
     
-    jac1.solve(tol=1e-10,max_iters=2000)
+    jac1.solve(tol=tol,max_iters=max_iters)
+
+    method_names.append('SG')
+
+    iteration_values.append(jac1.noi)
+
+    spectral_radius_values.append(jac1.spectral_radius)
     
     print(jac1,end='\n\n')
 
@@ -30,8 +53,14 @@ if __name__ == '__main__':
     
     jac2 = GaussSeidel(s,compute_spectral_radius=True,use_modified_method=True,warm_start=True)
     
-    jac2.solve(tol=1e-6,max_iters=2000)
+    jac2.solve(tol=tol,max_iters=max_iters)
     
+    method_names.append('MG '+str(jac2.diagonal_list))
+
+    iteration_values.append(jac2.noi)
+
+    spectral_radius_values.append(jac2.spectral_radius)
+
     print(jac2,end='\n\n')
 
     '-----------------------------------------------Modified GaussSeidel-----------------------------------------------'
@@ -39,41 +68,88 @@ if __name__ == '__main__':
     
     jac3 = GaussSeidel(s,compute_spectral_radius=True,use_modified_method=True,warm_start=True,diagonal_list=[1,2])
     
-    jac3.solve(tol=1e-6,max_iters=2000)
+    jac3.solve(tol=tol,max_iters=max_iters)
+
+    method_names.append('MG '+str(jac3.diagonal_list))
+
+    iteration_values.append(jac3.noi)
+
+    spectral_radius_values.append(jac3.spectral_radius)
     
     print(jac3,end='\n\n')
 
     '-----------------------------------------------Modified GaussSeidel-----------------------------------------------'
-    
-    
+
     jac4 = GaussSeidel(s,compute_spectral_radius=True,use_modified_method=True,warm_start=True,diagonal_list=[1,-1])
-    
-    jac4.solve(tol=1e-6,max_iters=2000)
-    
+
+    jac4.solve(tol=tol,max_iters=max_iters)
+
+    method_names.append('MG '+str(jac4.diagonal_list))
+
+    iteration_values.append(jac4.noi)
+
+    spectral_radius_values.append(jac4.spectral_radius)
+
     print(jac4,end='\n\n')
+
+    '-----------------------------------------------Modified GaussSeidel-----------------------------------------------'
+
+    jac5 = GaussSeidel(s,compute_spectral_radius=True,use_modified_method=True,warm_start=True,diagonal_list=[1,3])
+
+    jac5.solve(tol=tol,max_iters=max_iters)
+
+    method_names.append('MG '+str(jac5.diagonal_list))
+
+    iteration_values.append(jac5.noi)
+
+    spectral_radius_values.append(jac5.spectral_radius)
+
+    print(jac5,end='\n\n')
 
     '-----------------------------------------------Milaszewicz followed by Standard GaussSeidel-----------------------------------------------'
 
     mil_sj = Milaszewicz(s,k=4,method='gauss_seidel',use_modified_method=False,compute_spectral_radius=True,copy=True,warm_start=True)
-    
-    mil_sj.solve(tol=1e-6,max_iters=2000)
-    
+
+    mil_sj.solve(tol=tol,max_iters=max_iters)
+
+    method_names.append('MilSG')
+
+    iteration_values.append(mil_sj.solver.noi)
+
+    spectral_radius_values.append(mil_sj.solver.spectral_radius)
+
     print(mil_sj,end='\n\n')
 
     '-----------------------------------------------Milaszewicz followed by Modified GaussSeidel-----------------------------------------------'
 
-    mil_sj = Milaszewicz(s,k=4,method='gauss_seidel',use_modified_method=True,compute_spectral_radius=True,copy=True,warm_start=True,diagonal_list=[1])
+    mil_mj = Milaszewicz(s,k=4,method='gauss_seidel',use_modified_method=True,compute_spectral_radius=True,copy=True,warm_start=True)
 
-    mil_sj.solve(tol=1e-6,max_iters=2000)
+    mil_mj.solve(tol=tol,max_iters=max_iters)
 
-    print(mil_sj,end='\n\n')
+    method_names.append('MilMG '+str(mil_mj.solver.diagonal_list))
 
-    '-----------------------------------------------Milaszewicz followed by Multi Diagonal GaussSeidel-----------------------------------------------'
+    iteration_values.append(mil_mj.solver.noi)
 
-    mil_sj = Milaszewicz(s,k=4,method='gauss_seidel',use_modified_method=True,compute_spectral_radius=True,copy=True,warm_start=True,diagonal_list=[1,2])
+    spectral_radius_values.append(mil_mj.solver.spectral_radius)
 
-    mil_sj.solve(tol=1e-6,max_iters=2000)
+    print(mil_mj,end='\n\n')
 
-    print(mil_sj,end='\n\n')
+    '-----------------------------------------------Milaszewicz followed by Multi Modified GaussSeidel-----------------------------------------------'
 
-    
+    mil_mj2 = Milaszewicz(s,k=4,method='gauss_seidel',use_modified_method=True,compute_spectral_radius=True,copy=True,warm_start=True,diagonal_list=[1,2])
+
+    mil_mj2.solve(tol=tol,max_iters=max_iters)
+
+    method_names.append('MilMG '+str(mil_mj2.solver.diagonal_list))
+
+    iteration_values.append(mil_mj2.solver.noi)
+
+    spectral_radius_values.append(mil_mj2.solver.spectral_radius)
+
+    print(mil_mj2,end='\n\n')
+
+    '-----------------------------------------------Iterations and Spectral Radius Plots-----------------------------------------------'
+
+    vz.show_iterations_plot(kind=s.kind,dim=s.dim,y=method_names,iteration_values=iteration_values)
+
+    vz.show_spectral_radius_plot(kind=s.kind,dim=s.dim,y=method_names,spectral_radius_values=spectral_radius_values)
