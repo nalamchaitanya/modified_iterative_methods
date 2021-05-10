@@ -11,11 +11,16 @@ from generate.generators import SystemGenerator
 
 from visualize import visualizers as vz
 
+import os
+
 if __name__ == '__main__':
     
     dim = 500
     
     kind = 'Z'
+
+    folder = 'test'
+    os.mkdir(folder)
     
     sg = SystemGenerator() # system generator
     
@@ -31,7 +36,7 @@ if __name__ == '__main__':
     
     jac1.solve(tol=1e-10,max_iters=2000)
     
-    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Standard Jacobi',spectral_radius=jac1.spectral_radius,l_inf_values=jac1.l_inf_values,s=2)
+    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Standard Jacobi',spectral_radius=jac1.spectral_radius,l_inf_values=jac1.l_inf_values,s=2,folder=folder)
     
     method_names.append('Standard Jacobi')
     
@@ -48,7 +53,7 @@ if __name__ == '__main__':
     
     jac2.solve(tol=1e-6,max_iters=2000)
     
-    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Modified Jacobi',spectral_radius=jac2.spectral_radius,l_inf_values=jac2.l_inf_values,s=0.5)
+    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Modified Jacobi',spectral_radius=jac2.spectral_radius,l_inf_values=jac2.l_inf_values,s=0.5,folder=folder)
     
     method_names.append('Modified Jacobi')
     
@@ -64,7 +69,7 @@ if __name__ == '__main__':
     
     mil_sj.solve(tol=1e-6,max_iters=2000)
     
-    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Standard Jacobi',spectral_radius=mil_sj.solver.spectral_radius,l_inf_values=mil_sj.solver.l_inf_values,s=0.5)
+    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Standard Jacobi',spectral_radius=mil_sj.solver.spectral_radius,l_inf_values=mil_sj.solver.l_inf_values,s=0.5,folder=folder)
     
     method_names.append('Milaszewicz followed by Standard Jacobi')
     
@@ -80,7 +85,7 @@ if __name__ == '__main__':
     
     mil_mj.solve(tol=1e-6,max_iters=2000)
     
-    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Modified Jacobi',spectral_radius=mil_mj.solver.spectral_radius,l_inf_values=mil_mj.solver.l_inf_values,s=0.5)
+    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Modified Jacobi',spectral_radius=mil_mj.solver.spectral_radius,l_inf_values=mil_mj.solver.l_inf_values,s=0.5,folder=folder)
     
     method_names.append('Milaszewicz followed by Modified Jacobi')
     
@@ -96,7 +101,7 @@ if __name__ == '__main__':
 
     gase1.solve(tol=1e-10,max_iters=2000)
     
-    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Standard GaussSeidel',spectral_radius=gase1.spectral_radius,l_inf_values=gase1.l_inf_values,s=0.5)
+    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Standard GaussSeidel',spectral_radius=gase1.spectral_radius,l_inf_values=gase1.l_inf_values,s=0.5,folder=folder)
     
     method_names.append('Standard GaussSeidel')
     
@@ -112,7 +117,7 @@ if __name__ == '__main__':
 
     gase2.solve(tol=1e-10,max_iters=2000)
     
-    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Modified GaussSeidel',spectral_radius=gase2.spectral_radius,l_inf_values=gase2.l_inf_values,s=0.5)
+    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Modified GaussSeidel',spectral_radius=gase2.spectral_radius,l_inf_values=gase2.l_inf_values,s=0.5,folder=folder)
     
     method_names.append('Modified GaussSeidel')
     
@@ -128,7 +133,7 @@ if __name__ == '__main__':
     
     mil_sgs.solve(tol=1e-6,max_iters=2000)
     
-    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Standard Gauss Seidel',spectral_radius=mil_sgs.solver.spectral_radius,l_inf_values=mil_sgs.solver.l_inf_values,s=0.5)
+    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Standard Gauss Seidel',spectral_radius=mil_sgs.solver.spectral_radius,l_inf_values=mil_sgs.solver.l_inf_values,s=0.5,folder=folder)
     
     method_names.append('Milaszewicz followed by Standard Gauss Seidel')
     
@@ -144,7 +149,7 @@ if __name__ == '__main__':
     
     mil_mgs.solve(tol=1e-6,max_iters=2000)
     
-    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Modified Gauss Seidel',spectral_radius=mil_mgs.solver.spectral_radius,l_inf_values=mil_mgs.solver.l_inf_values,s=0.5)
+    vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Modified Gauss Seidel',spectral_radius=mil_mgs.solver.spectral_radius,l_inf_values=mil_mgs.solver.l_inf_values,s=0.5,folder=folder)
     
     method_names.append('Milaszewicz followed by Modified Gauss Seidel')
     
@@ -156,7 +161,7 @@ if __name__ == '__main__':
 
     '-----------------------------------------------Iterations and Spectral Radius Plots-----------------------------------------------'
 
-    vz.show_iterations_plot(kind=s.kind,dim=s.dim,y=method_names,iteration_values=iteration_values)
+    vz.show_iterations_plot(kind=s.kind,dim=s.dim,y=method_names,iteration_values=iteration_values,folder=folder)
 
-    vz.show_spectral_radius_plot(kind=s.kind,dim=s.dim,y=method_names,spectral_radius_values=spectral_radius_values)
+    vz.show_spectral_radius_plot(kind=s.kind,dim=s.dim,y=method_names,spectral_radius_values=spectral_radius_values,folder=folder)
 
