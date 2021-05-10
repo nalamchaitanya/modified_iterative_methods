@@ -10,7 +10,7 @@ def show_l_inf_plot(kind='',dim='',method='',spectral_radius='',l_inf_values=[],
     shortMethod = "".join(list(map(itemgetter(0),method.split(' '))))
     # plt.show()
     fig = plt.gcf()
-    fig.savefig(folder+'/'+kind+'_'+str(dim)+'_'+shortMethod+'_linf')
+    fig.savefig(folder+'/'+kind+'_'+str(dim)+'_'+shortMethod+'_linf',bbox_inches='tight')
     plt.close(fig)
 
 def show_iterations_plot(kind='',dim='',y=[],iteration_values=[],s=1,color='blue',folder='test'):
@@ -23,7 +23,7 @@ def show_iterations_plot(kind='',dim='',y=[],iteration_values=[],s=1,color='blue
     plt.ylabel('Method')
     # plt.show()
     fig = plt.gcf()
-    fig.savefig(folder+'/'+kind+'_'+str(dim)+'_iter')
+    fig.savefig(folder+'/'+kind+'_'+str(dim)+'_iter',bbox_inches='tight')
     plt.close(fig)
     
 def show_spectral_radius_plot(kind='',dim='',y=[],spectral_radius_values=[],s=1,color='blue',folder='test'):
@@ -37,5 +37,5 @@ def show_spectral_radius_plot(kind='',dim='',y=[],spectral_radius_values=[],s=1,
     plt.xlabel('Spectral Radius')
     # plt.show()
     fig = plt.gcf()
-    fig.savefig(folder+'/'+kind+'_'+str(dim)+'_spec')
+    fig.savefig(folder+'/'+kind+'_'+str(dim)+'_spec',bbox_inches='tight')
     plt.close(fig)

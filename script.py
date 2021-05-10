@@ -12,15 +12,24 @@ from generate.generators import SystemGenerator
 from visualize import visualizers as vz
 
 import os
+import time
+import numpy as np
 
 if __name__ == '__main__':
+
+    np.random.seed(int(time.time()))
     
     dim = 500
     
     kind = 'Z'
 
+    tol = 1e-6
+
+    max_iters = 2000
+
     folder = 'test'
-    os.mkdir(folder)
+    if not os.path.exists(folder):
+        os.mkdir(folder)
     
     sg = SystemGenerator() # system generator
     
@@ -34,7 +43,7 @@ if __name__ == '__main__':
     
     jac1 = Jacobi(s,compute_spectral_radius=True,use_modified_method=False,warm_start=True)
     
-    jac1.solve(tol=1e-10,max_iters=2000)
+    jac1.solve(tol=tol,max_iters=max_iters)
     
     vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Standard Jacobi',spectral_radius=jac1.spectral_radius,l_inf_values=jac1.l_inf_values,s=2,folder=folder)
     
@@ -51,7 +60,7 @@ if __name__ == '__main__':
     
     jac2 = Jacobi(s,compute_spectral_radius=True,use_modified_method=True,warm_start=True)
     
-    jac2.solve(tol=1e-6,max_iters=2000)
+    jac2.solve(tol=tol,max_iters=max_iters)
     
     vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Modified Jacobi',spectral_radius=jac2.spectral_radius,l_inf_values=jac2.l_inf_values,s=0.5,folder=folder)
     
@@ -67,7 +76,7 @@ if __name__ == '__main__':
 
     mil_sj = Milaszewicz(s,k=4,method='jacobi',use_modified_method=False,compute_spectral_radius=True,copy=True,warm_start=True)
     
-    mil_sj.solve(tol=1e-6,max_iters=2000)
+    mil_sj.solve(tol=tol,max_iters=max_iters)
     
     vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Standard Jacobi',spectral_radius=mil_sj.solver.spectral_radius,l_inf_values=mil_sj.solver.l_inf_values,s=0.5,folder=folder)
     
@@ -83,7 +92,7 @@ if __name__ == '__main__':
 
     mil_mj = Milaszewicz(s,k=4,method='jacobi',use_modified_method=True,compute_spectral_radius=True,copy=True,warm_start=True)
     
-    mil_mj.solve(tol=1e-6,max_iters=2000)
+    mil_mj.solve(tol=tol,max_iters=max_iters)
     
     vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Modified Jacobi',spectral_radius=mil_mj.solver.spectral_radius,l_inf_values=mil_mj.solver.l_inf_values,s=0.5,folder=folder)
     
@@ -99,7 +108,7 @@ if __name__ == '__main__':
 
     gase1 = GaussSeidel(s,compute_spectral_radius=True,use_modified_method=False,warm_start=True)
 
-    gase1.solve(tol=1e-10,max_iters=2000)
+    gase1.solve(tol=tol,max_iters=max_iters)
     
     vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Standard GaussSeidel',spectral_radius=gase1.spectral_radius,l_inf_values=gase1.l_inf_values,s=0.5,folder=folder)
     
@@ -115,7 +124,7 @@ if __name__ == '__main__':
 
     gase2 = GaussSeidel(s,compute_spectral_radius=True,use_modified_method=True,warm_start=True)
 
-    gase2.solve(tol=1e-10,max_iters=2000)
+    gase2.solve(tol=tol,max_iters=max_iters)
     
     vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Modified GaussSeidel',spectral_radius=gase2.spectral_radius,l_inf_values=gase2.l_inf_values,s=0.5,folder=folder)
     
@@ -131,7 +140,7 @@ if __name__ == '__main__':
 
     mil_sgs = Milaszewicz(s,k=4,method='gauss_seidel',use_modified_method=False,compute_spectral_radius=True,copy=True,warm_start=True)
     
-    mil_sgs.solve(tol=1e-6,max_iters=2000)
+    mil_sgs.solve(tol=tol,max_iters=max_iters)
     
     vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Standard Gauss Seidel',spectral_radius=mil_sgs.solver.spectral_radius,l_inf_values=mil_sgs.solver.l_inf_values,s=0.5,folder=folder)
     
@@ -147,7 +156,7 @@ if __name__ == '__main__':
 
     mil_mgs = Milaszewicz(s,k=4,method='gauss_seidel',use_modified_method=True,compute_spectral_radius=True,copy=True,warm_start=True)
     
-    mil_mgs.solve(tol=1e-6,max_iters=2000)
+    mil_mgs.solve(tol=tol,max_iters=max_iters)
     
     vz.show_l_inf_plot(kind=s.kind,dim=s.dim,method='Milaszewicz followed by Modified Gauss Seidel',spectral_radius=mil_mgs.solver.spectral_radius,l_inf_values=mil_mgs.solver.l_inf_values,s=0.5,folder=folder)
     
