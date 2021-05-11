@@ -6,6 +6,7 @@ Created on Wed Apr 21 22:55:57 2021
 """
 
 import numpy as np
+from data.data import loadMatrix
 
 class MatrixGenerator:
     
@@ -146,6 +147,12 @@ class SystemGenerator:
     
     def __init__(self):
         self.mg = MatrixGenerator()
+
+    def load(self, file, kind, diagonally_dominant):
+        A = loadMatrix(file)
+        x_true = np.random.rand(A.shape[0])
+        b = np.dot(A,x_true)
+        return System(A,x_true,b,kind,diagonally_dominant,A.shape[0])
     
     def generate(self,dim=10,kind='Z',diagonally_dominant=False):
         

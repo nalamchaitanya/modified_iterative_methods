@@ -33,7 +33,7 @@ if __name__ == '__main__':
     
     sg = SystemGenerator() # system generator
     
-    s = sg.generate(dim=dim,kind=kind,diagonally_dominant=True) # generate a system of linear equations
+    s = sg.load(file='data/bcsstk19.mtx',kind='symmetric',diagonally_dominant=False) # generate a system of linear equations
     
     method_names = []
     iteration_values = []
