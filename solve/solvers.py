@@ -11,7 +11,7 @@ from numpy.linalg import eigvals, inv
 
 class IterativeSolver:
     
-    "Parent solver"
+    """ Parent solver class which encompasses the common iterative method frame work and all the helper functions needed """
     
     def __init__(self,system,diagonal_list,x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False):
         
@@ -69,6 +69,9 @@ class IterativeSolver:
         
     def make_diagonal_zero(self, diagonal_index):
 
+        """ diagonal_index represents the diagonal whose elements have to be made zero
+            this function applies the required transformations to make the elements zero.
+        """
         if not self.all_ones_along_diagonal():
             self.b = self.b / self.A[range(self.n),range(self.n)] # (D^-1)*b
             self.A = np.divide(self.A,self.A[range(self.n),range(self.n)].reshape(self.n,1)) # (D^-1)*A
@@ -214,9 +217,11 @@ class GaussSeidel(IterativeSolver):
 
         else: #modified gauss-seidel method
 
+            # Applying the transformations to make the elements of the diagonal zero given by the diagonal_list
             for diagonal_index in self.diagonal_list:
                 self.make_diagonal_zero(diagonal_index);
 
+            # Check whether all the diagonal elements are one
             if not self.all_ones_along_diagonal():
                 self.b = self.b / self.A[range(self.n),range(self.n)] # (D^-1)*b
                 self.A = np.divide(self.A,self.A[range(self.n),range(self.n)].reshape(self.n,1)) # (D^-1)*A
@@ -254,6 +259,8 @@ class GaussSeidel(IterativeSolver):
         return tabulate(table,tablefmt='grid')
 
 class Milaszewicz:
+
+    """ Class which does the Milaszewicz transformation after the usual split by the specified method either Jacobi or Gauss-Seidel"""
     
     def __init__(self,system,k,method='jacobi',x = None,use_modified_method=False,compute_spectral_radius=False,copy=True,warm_start=False,diagonal_list=[1]):
         
